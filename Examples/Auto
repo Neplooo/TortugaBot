@@ -1,0 +1,87 @@
+#include <Arduino.h> //Arduino Library
+#include <AFMotor.h> //Motor Driver Library
+#include <nRF24L01.h>//Radio Module
+#include <RF24.h>//Radio Module
+#include <SPI.h>//I^2C Library
+
+//Creates a variable for the speed of the DC Motor
+int  speed(int percent)
+{
+  return map(percent, 0, 100, 0, 255);
+}
+
+//Defines DC Motors
+AF_DCMotor backLeft(1);
+AF_DCMotor frontLeft(2);
+AF_DCMotor backRight(3);
+AF_DCMotor frontRight(4);
+
+//How The Robot Moves Foward
+void forward(){
+
+  backLeft.setSpeed( speed(100) );
+  backLeft.run(FORWARD);
+  backRight.setSpeed( speed(100) );
+  backRight.run(FORWARD);
+  frontLeft.setSpeed( speed(100) );
+  frontLeft.run(FORWARD);
+  frontRight.setSpeed( speed(100) );
+  frontRight.run(FORWARD);
+
+}
+
+//How The Robot Moves Backwards
+void backwards(){
+
+  backLeft.setSpeed( speed(100) );
+  backLeft.run(BACKWARD);
+  backRight.setSpeed( speed(100) );
+  backRight.run(BACKWARD);
+  frontLeft.setSpeed( speed(100) );
+  frontLeft.run(BACKWARD);
+  frontRight.setSpeed( speed(100) );
+  frontRight.run(BACKWARD);
+
+}
+
+//How The Robot Moves Left
+void left(){
+
+  backLeft.setSpeed( speed(100) );
+  backLeft.run(BACKWARD);
+  backRight.setSpeed( speed(100) );
+  backRight.run(FORWARD);
+  frontLeft.setSpeed( speed(100) );
+  frontLeft.run(BACKWARD);
+  frontRight.setSpeed( speed(100) );
+  frontRight.run(FORWARD);
+
+}
+
+//How The Robot Moves Right
+void right(){
+
+  backLeft.setSpeed( speed(100) );
+  backLeft.run(FORWARD);
+  backRight.setSpeed( speed(100) );
+  backRight.run(BACKWARD);
+  frontLeft.setSpeed( speed(100) );
+  frontLeft.run(FORWARD);
+  frontRight.setSpeed( speed(100) );
+  frontRight.run(BACKWARD);
+
+}
+
+void setup() {
+  // put your setup code here, to run once:
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+
+  forward();
+  delay(5000);
+  backwards();
+  delay(5000);
+
+}
