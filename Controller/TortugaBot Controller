@@ -1,0 +1,100 @@
+#include <Arduino.h>
+/* JoyStick module transceiver code
+ - CONNECTIONS: nRF24L01 Modules See:
+   1 - GND
+   2 - VCC 3.3V !!! NOT 5V
+   3 - CE to Arduino pin 9
+   4 - CSN to Arduino pin 10
+   5 - SCK to Arduino pin 13
+   6 - MOSI to Arduino pin 11
+   7 - MISO to Arduino pin 12
+   8 - UNUSED
+   
+   Default Button Pins: 
+   Up     - pin 2
+   Right  - pin 3
+   Down   - pin 4
+   Left   - pin 5
+   - 
+   Analog Joystick module
+   GND    to Arduino GND
+   VCC    to Arduino +5V
+   X Pot  to Arduino A0
+   Y Pot  to Arduino A1*
+
+/*-----( Import needed libraries )-----*/
+#include <SPI.h>
+#include <nRF24L01.h>
+#include <RF24.h>
+
+#define CE_PIN   9
+#define CSN_PIN 10
+
+
+/*-----( Declare objects )-----*/
+RF24 radio(CE_PIN, CSN_PIN); // Create a Radio
+
+/*-----( Declare Variables )-----*/
+
+
+#define xAxis A0     // A0 for Arduino UNO
+#define yAxis A1    // A1 for Arduino UNO
+int upButton = 2;
+int downButton = 4;
+int leftButton = 5;
+int rightButton = 3;
+
+int xFinal;
+int yFinal;
+
+struct myjoystick {
+
+int xFinal;
+int yFinal;
+
+};
+
+myjoystick joystick;
+
+
+void setup() {
+
+  //Debug
+  Serial.begin(9600);
+
+  //Code
+  radio.begin();
+  radio.openWritingPipe(0xB3B4B5B601);
+  radio.setPALevel(RF24_PA_LOW);
+  radio.setDataRate(RF24_1MBPS);
+  radio.setAutoAck(true);
+  radio.setChannel(124);
+  radio.printDetails();
+
+}
+
+void loop() {
+delay(5);
+
+radio.stopListening();
+int potVal = analogRead(yAxis);
+int potVal2 = analogRead(xAxis);
+yFinal = map(potVal, 0, 1023, 0, 100);
+xFinal = map(potVal2, 0, 1023, 0, 100);
+radio.write(&joystick, sizeof(joystick));
+
+Serial.println("TX: Sent out data");
+	if (!radio.write(&joystick, sizeof(joystick))) {
+		Serial.println("TX: No ACK");
+	} else {
+		Serial.println("TX: ACK");
+	}
+
+//Debug
+Serial.print(" X = ");
+Serial.print(xFinal);
+Serial.print(" Y = ");  
+Serial.print(yFinal );
+delay(1000);
+
+}
