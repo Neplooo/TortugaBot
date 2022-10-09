@@ -1,0 +1,91 @@
+#include <Arduino.h>
+#include <AFMotor.h>
+#include <RF24.h>
+#include <nRF24L01.h>
+#include <SPI.h>
+
+#define CE_PIN 6
+#define CSN_PIN 8
+
+
+
+RF24 radio(CE_PIN, CSN_PIN);
+
+//Defines DC Motors
+AF_DCMotor backLeft(1);
+AF_DCMotor frontLeft(2);
+AF_DCMotor backRight(3);
+AF_DCMotor frontRight(4);
+
+//Creates a variable for the speed of the DC Motor
+int  speed(int percent)
+{
+  return map(percent, 0, 100, 0, 255);
+}
+
+const byte address[6] = {"00001"};
+
+
+void setup() {
+  // put your setup code here, to run once:
+
+  Serial.begin(9600);
+
+  radio.begin();
+  radio.openReadingPipe(1, address[1]);
+  radio.setDataRate(RF24_1MBPS);
+  radio.setPALevel(RF24_PA_LOW);
+
+}
+
+//How The Robot Stops
+void stop(){
+
+  backLeft.run(RELEASE);
+  backRight.run(RELEASE);
+  frontLeft.run(RELEASE);
+  frontRight.run(RELEASE);
+
+}
+
+//How The Robot Moves Foward
+void forward(){
+
+  backLeft.setSpeed( speed(100) );
+  backLeft.run(FORWARD);
+  backRight.setSpeed( speed(100) );
+  backRight.run(FORWARD);
+  frontLeft.setSpeed( speed(100) );
+  frontLeft.run(FORWARD);
+  frontRight.setSpeed( speed(100) );
+  frontRight.run(FORWARD);
+
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  delay(5);
+
+  radio.startListening();
+  if (radio.available())
+  {
+    while (radio.available()){
+      int angleY = 0;
+      radio.read(&angleY, sizeof(angleY));
+      if (angleY > 50){
+
+      forward();
+      delay(5);
+      }
+    }
+
+
+    }
+    else {
+
+    stop();
+
+    }
+
+
+}
